@@ -29,6 +29,7 @@ import (
 
 	hiveutils "github.com/openshift/hive/contrib/pkg/utils"
 	awsutils "github.com/openshift/hive/contrib/pkg/utils/aws"
+	azureutils "github.com/openshift/hive/contrib/pkg/utils/azure"
 	gcputils "github.com/openshift/hive/contrib/pkg/utils/gcp"
 	"github.com/openshift/hive/pkg/apis"
 	hivev1 "github.com/openshift/hive/pkg/apis/hive/v1"
@@ -49,6 +50,7 @@ the ExternalDNS section of HiveConfig.
 const (
 	cloudAWS                = "aws"
 	cloudGCP                = "gcp"
+	cloudAzure              = "azure"
 	hiveAdmissionDeployment = "hiveadmission"
 	hiveConfigName          = "hive"
 	waitTime                = time.Minute * 2
@@ -154,6 +156,14 @@ func (o *Options) Run(args []string) error {
 			log.WithError(err).Fatal("error generating manageDNS credentials secret")
 		}
 		dnsConf.GCP = &hivev1.ManageDNSGCPConfig{
+			CredentialsSecretRef: corev1.LocalObjectReference{Name: credsSecret.Name},
+		}
+	case cloudAzure:
+		credsSecret, err = o.generateAzureCredentialsSecret()
+		if err != nil {
+			log.WithError(err).Fatal("error generating manageDNS credentials secret")
+		}
+		dnsConf.Azure = &hivev1.ManageDNSAzureConfig{
 			CredentialsSecretRef: corev1.LocalObjectReference{Name: credsSecret.Name},
 		}
 	default:
@@ -333,6 +343,27 @@ func (o *Options) generateGCPCredentialsSecret() (*corev1.Secret, error) {
 		},
 	}, nil
 }
+
+func (o *Options) generateAzureCredentialsSecret() (*corev1.Secret, error) {
+	spFileContents, err := azureutils.GetCreds(o.CredsFile)
+	if err != nil {
+		return nil, err
+	}
+	return &corev1.Secret{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Secret",
+			APIVersion: corev1.SchemeGroupVersion.String(),
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: fmt.Sprintf("azure-dns-creds-%s", uuid.New().String()[:5]),
+		},
+		Type: corev1.SecretTypeOpaque,
+		Data: map[string][]byte{
+			constants.AzureCredentialsName: spFileContents,
+		},
+	}, nil
+}
+
 func (o *Options) getResourceHelper() (*resource.Helper, error) {
 	cfg, err := config.GetConfig()
 	if err != nil {
