@@ -136,6 +136,10 @@ type ManageDNSConfig struct {
 	// +optional
 	GCP *ManageDNSGCPConfig `json:"gcp,omitempty"`
 
+	// Azure contains Azure-specific settings for external DNS
+	// +optional
+	Azure *ManageDNSAzureConfig `json:"azure,omitempty"`
+
 	// As other cloud providers are supported, additional fields will be
 	// added for each of those cloud providers. Only a single cloud provider
 	// may be configured at a time.
@@ -174,6 +178,23 @@ type DeleteProtectionType string
 const (
 	DeleteProtectionEnabled DeleteProtectionType = "enabled"
 )
+
+// ManageDNSAzureConfig contains Azure-specific info to manage a given domain
+type ManageDNSAzureConfig struct {
+	// CredentialsSecretRef references a secret in the TargetNamespace that will be used to authenticate with
+	// Azure DNS. It wil need permission to manage entries in each of the
+	// managed domains for this cluster.
+	// listed in the parent ManageDNSConfig object.
+	// Secret should have a key named 'osServicePrincipal.json'
+	// +optional
+	CredentialsSecretRef corev1.LocalObjectReference `json:"credentialsSecretRef,omitempty"`
+
+	// +optional
+	Region string `json:"region,omitempty"`
+
+	// +optional
+	BaseDomainResourceGroupName string `json:"baseDomainResourceGroupName,omitempty"`
+}
 
 // +genclient:nonNamespaced
 // +genclient

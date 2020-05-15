@@ -33,6 +33,10 @@ type DNSZoneSpec struct {
 	// GCP specifies GCP-specific cloud configuration
 	// +optional
 	GCP *GCPDNSZoneSpec `json:"gcp,omitempty"`
+
+	// Azure specifes Azure-specific cloud configuration
+	// +optional
+	Azure *AzureDNSZoneSpec `json:"azure,omitempty"`
 }
 
 // AWSDNSZoneSpec contains AWS-specific DNSZone specifications
@@ -70,6 +74,21 @@ type GCPDNSZoneSpec struct {
 	CredentialsSecretRef corev1.LocalObjectReference `json:"credentialsSecretRef"`
 }
 
+// AzureDNSZoneSpec contains Azure-specific DNSZone specifications
+type AzureDNSZoneSpec struct {
+	// CredentialsSecretRef references a secret that will be used to authenticate with
+	// Azure CloudDNS. It will need permission to create and manage CloudDNS Hosted Zones.
+	// Secret should have a key named 'osServicePrincipal.json'.
+	// The credentials must specify the project to use.
+	CredentialsSecretRef corev1.LocalObjectReference `json:"credentialsSecretRef"`
+
+	// +optional
+	Region string `json:"region,omitempty"`
+
+	// +optional
+	BaseDomainResourceGroupName string `json:"baseDomainResourceGroupName,omitempty"`
+}
+
 // DNSZoneStatus defines the observed state of DNSZone
 type DNSZoneStatus struct {
 	// LastSyncTimestamp is the time that the zone was last sync'd.
@@ -93,6 +112,10 @@ type DNSZoneStatus struct {
 	// +optional
 	GCP *GCPDNSZoneStatus `json:"gcp,omitempty"`
 
+	// AzureDNSZoneStatus contains status information specific to Azure
+	// +optional
+	Azure *AzureDNSZoneStatus `json:"azure,omitempty"`
+
 	// Conditions includes more detailed status for the DNSZone
 	// +optional
 	Conditions []DNSZoneCondition `json:"conditions,omitempty"`
@@ -108,6 +131,13 @@ type AWSDNSZoneStatus struct {
 // GCPDNSZoneStatus contains status information specific to GCP Cloud DNS zones
 type GCPDNSZoneStatus struct {
 	// ZoneName is the name of the zone in GCP Cloud DNS
+	// +optional
+	ZoneName *string `json:"zoneName,omitempty"`
+}
+
+// AzureDNSZoneStatus contains status information to specific to Azure Cloud DNS Zones
+type AzureDNSZoneStatus struct {
+	// ZoneName is the name of the zone in Azure Cloud DNS
 	// +optional
 	ZoneName *string `json:"zoneName,omitempty"`
 }
