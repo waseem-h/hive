@@ -3,6 +3,7 @@ package dnszone
 import (
 	"context"
 	"errors"
+	"net/http"
 
 	"github.com/Azure/azure-sdk-for-go/services/dns/mgmt/2018-05-01/dns"
 	hivev1 "github.com/openshift/hive/pkg/apis/hive/v1"
@@ -121,6 +122,12 @@ func (a *AzureActuator) Refresh() error {
 	logger.Debug("Fetching managed zone by zone name")
 	resp, err := a.azureClient.GetZone(context.TODO(), resourceGroupName, zoneName)
 	if err != nil {
+		if resp.StatusCode == http.StatusNotFound {
+			logger.Debug("Zone not found, clearing out the cached object")
+			a.managedZone = nil
+			return nil
+		}
+
 		logger.WithError(err).Error("Cannot get managed zone")
 		return err
 	}
