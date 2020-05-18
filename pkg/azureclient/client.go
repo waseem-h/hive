@@ -20,10 +20,14 @@ import (
 // Client is a wrapper object for actual Azure libraries to allow for easier mocking/testing.
 type Client interface {
 	ListResourceSKUs(ctx context.Context) (ResourceSKUsPage, error)
+
+	// Zones
 	CreateOrUpdateZone(ctx context.Context, resourceGroupName string, zone string) (dns.Zone, error)
 	DeleteZone(ctx context.Context, resourceGroupName string, zone string) error
 	GetZone(ctx context.Context, resourceGroupName string, zone string) (dns.Zone, error)
 	ListZones(ctx context.Context, resourceGroupName string) (*[]dns.Zone, error)
+
+	// RecordSets
 	ListRecordSetsByZone(ctx context.Context, resourceGroupName string, zone string) (*[]dns.RecordSet, error)
 	CreateOrUpdateRecordSet(ctx context.Context, resourceGroupName string, zone string, recordSetName string, recordType dns.RecordType, recordSet dns.RecordSet) (dns.RecordSet, error)
 	DeleteRecordSet(ctx context.Context, resourceGroupName string, zone string, recordSetName string, recordType dns.RecordType) error

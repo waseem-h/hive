@@ -13,6 +13,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
+// NewAzureQuery creates a new name server query for Azure.
 func NewAzureQuery(c client.Client, credsSecretName string, resourceGroupName string) Query {
 	return &azureQuery{
 		getAzureClient: func() (azureclient.Client, error) {
@@ -38,6 +39,7 @@ type azureQuery struct {
 
 var _ Query = (*azureQuery)(nil)
 
+// Get implements Query.Get.
 func (q *azureQuery) Get(domain string) (map[string]sets.String, error) {
 	azureClient, err := q.getAzureClient()
 	if err != nil {
@@ -47,6 +49,7 @@ func (q *azureQuery) Get(domain string) (map[string]sets.String, error) {
 	return currentNameServers, errors.Wrap(err, "error quering name servers")
 }
 
+// Create implements Query.Create.
 func (q *azureQuery) Create(rootDomain string, domain string, values sets.String) error {
 	azureClient, err := q.getAzureClient()
 	if err != nil {
@@ -56,6 +59,7 @@ func (q *azureQuery) Create(rootDomain string, domain string, values sets.String
 	return errors.Wrap(q.createNameServers(azureClient, rootDomain, domain, values), "error creating the name server")
 }
 
+// Delete implements Query.Delete.
 func (q *azureQuery) Delete(rootDomain string, domain string, values sets.String) error {
 	azureClient, err := q.getAzureClient()
 	if err != nil {
@@ -63,9 +67,13 @@ func (q *azureQuery) Delete(rootDomain string, domain string, values sets.String
 	}
 
 	if len(values) != 0 {
+		// If values were provided for the name servers, attempt to perform a
+		// delete using those values.
 		return errors.Wrap(q.deleteNameServers(azureClient, rootDomain, domain, values), "error deleting the name server")
 	}
 
+	// Since we do not have up-to-date values for the name servers, we need
+	// to query Azure for the current values to use them in the delete.
 	values, err = q.queryNameServer(azureClient, rootDomain, domain)
 	if err != nil {
 		return errors.Wrap(err, "error querying the current values of the name server")
@@ -80,10 +88,12 @@ func (q *azureQuery) Delete(rootDomain string, domain string, values sets.String
 	)
 }
 
+// deleteNameServers deletes the name servers for the specified domain in the specified managed zone.
 func (q *azureQuery) deleteNameServers(azureClient azureclient.Client, rootDomain string, domain string, values sets.String) error {
 	return azureClient.DeleteRecordSet(context.TODO(), q.resourceGroupName, rootDomain, domain, dns.NS)
 }
 
+// createNameServers creates the name servers for the specified domain in the specified managed zone.
 func (q *azureQuery) createNameServers(azureClient azureclient.Client, rootDomain string, domain string, values sets.String) error {
 	_, err := azureClient.CreateOrUpdateRecordSet(context.TODO(), q.resourceGroupName, rootDomain, domain, dns.NS, q.recordSet(domain, values))
 
@@ -107,6 +117,7 @@ func (q *azureQuery) recordSet(domain string, values sets.String) dns.RecordSet 
 	}
 }
 
+// queryNameServer queries Azure for the name servers for the specified domain in the specified managed zone.
 func (q *azureQuery) queryNameServer(azureClient azureclient.Client, rootDomain string, domain string) (sets.String, error) {
 	recordSets, err := azureClient.ListRecordSetsByZone(context.TODO(), q.resourceGroupName, rootDomain)
 	if err != nil {
@@ -129,6 +140,7 @@ func (q *azureQuery) queryNameServer(azureClient azureclient.Client, rootDomain 
 	return nil, errors.New("Cannot find name servers for domain")
 }
 
+// queryNameServers queries Azure for the name servers in the specified managed zone.
 func (q *azureQuery) queryNameServers(azureClient azureclient.Client, rootDomain string) (map[string]sets.String, error) {
 	nameServers := map[string]sets.String{}
 	recordSets, err := azureClient.ListRecordSetsByZone(context.TODO(), q.resourceGroupName, rootDomain)

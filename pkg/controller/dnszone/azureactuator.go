@@ -12,18 +12,24 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
+// AzureActuator attempts to make the current state reflect the given desired state.
 type AzureActuator struct {
+	// logger is the logger used for this controller
 	logger log.FieldLogger
 
+	// azureClient is a utility for making it easy for controllers to interface with Azure
 	azureClient azureclient.Client
 
+	// dnsZone is the DNSZone that represents the desired state.
 	dnsZone *hivev1.DNSZone
 
+	// managedZone is the Azure DNS Managed zone object.
 	managedZone *dns.Zone
 }
 
 type azureClientBuilderType func(secret *corev1.Secret) (azureclient.Client, error)
 
+// NewAzureActuator creates a new NewAzureActuator object. A new NewAzureActuator is expected to be created for each controller sync.
 func NewAzureActuator(
 	logger log.FieldLogger,
 	secret *corev1.Secret,
@@ -45,8 +51,10 @@ func NewAzureActuator(
 	return azureActuator, nil
 }
 
+// Ensure AzureActuator implements the Actuator interface. This will fail at compile time when false.
 var _ Actuator = &AzureActuator{}
 
+// Create implements the Create call of the actuator interface
 func (a *AzureActuator) Create() error {
 	logger := a.logger.WithField("zone", a.dnsZone.Spec.Zone)
 	logger.Info("Creating managed zone")
@@ -65,6 +73,7 @@ func (a *AzureActuator) Create() error {
 	return nil
 }
 
+// Delete implements the Delete call of the actuator interface
 func (a *AzureActuator) Delete() error {
 	if a.managedZone == nil {
 		return errors.New("managedZone is unpopulated")
@@ -81,10 +90,12 @@ func (a *AzureActuator) Delete() error {
 	return err
 }
 
+// Exists implements the Exists call of the actuator interface
 func (a *AzureActuator) Exists() (bool, error) {
 	return a.managedZone != nil, nil
 }
 
+// GetNameServers implements the GetNameServers call of the actuator interface
 func (a *AzureActuator) GetNameServers() ([]string, error) {
 	if a.managedZone == nil {
 		return nil, errors.New("managedZone is unpopulated")
@@ -96,6 +107,7 @@ func (a *AzureActuator) GetNameServers() ([]string, error) {
 	return *result, nil
 }
 
+// ModifyStatus implements the ModifyStatus call of the actuator interface
 func (a *AzureActuator) ModifyStatus() error {
 	if a.managedZone == nil {
 		return errors.New("managedZone is unpopulated")
@@ -108,6 +120,7 @@ func (a *AzureActuator) ModifyStatus() error {
 	return nil
 }
 
+// Refresh implements the Refresh call of the actuator interface
 func (a *AzureActuator) Refresh() error {
 	var zoneName string
 	if a.dnsZone.Status.Azure != nil && a.dnsZone.Status.Azure.ZoneName != nil {
