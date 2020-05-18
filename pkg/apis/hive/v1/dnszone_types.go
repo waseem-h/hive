@@ -85,8 +85,8 @@ type AzureDNSZoneSpec struct {
 	// +optional
 	Region string `json:"region,omitempty"`
 
-	// +optional
-	BaseDomainResourceGroupName string `json:"baseDomainResourceGroupName,omitempty"`
+	// ResourceGroupName specifies where the DNS Zone should be created
+	ResourceGroupName string `json:"resourceGroupName,omitempty"`
 }
 
 // DNSZoneStatus defines the observed state of DNSZone
