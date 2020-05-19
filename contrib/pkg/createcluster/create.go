@@ -10,12 +10,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	awsutils "github.com/openshift/hive/contrib/pkg/utils/aws"
-	gcputils "github.com/openshift/hive/contrib/pkg/utils/gcp"
-	openstackutils "github.com/openshift/hive/contrib/pkg/utils/openstack"
-	"github.com/openshift/hive/pkg/clusterresource"
-	"github.com/openshift/hive/pkg/gcpclient"
-
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
