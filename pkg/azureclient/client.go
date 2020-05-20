@@ -25,10 +25,10 @@ type Client interface {
 	CreateOrUpdateZone(ctx context.Context, resourceGroupName string, zone string) (dns.Zone, error)
 	DeleteZone(ctx context.Context, resourceGroupName string, zone string) error
 	GetZone(ctx context.Context, resourceGroupName string, zone string) (dns.Zone, error)
-	ListZones(ctx context.Context, resourceGroupName string) (*[]dns.Zone, error)
+	ListZones(ctx context.Context, resourceGroupName string, top *int32) (dns.ZoneListResultPage, error)
 
 	// RecordSets
-	ListRecordSetsByZone(ctx context.Context, resourceGroupName string, zone string) (*[]dns.RecordSet, error)
+	ListRecordSetsByZone(ctx context.Context, resourceGroupName string, zone string, top *int32) (dns.RecordSetListResultPage, error)
 	CreateOrUpdateRecordSet(ctx context.Context, resourceGroupName string, zone string, recordSetName string, recordType dns.RecordType, recordSet dns.RecordSet) (dns.RecordSet, error)
 	DeleteRecordSet(ctx context.Context, resourceGroupName string, zone string, recordSetName string, recordType dns.RecordType) error
 }
@@ -41,8 +41,6 @@ type ResourceSKUsPage interface {
 }
 
 type azureClient struct {
-	config             auth.ClientCredentialsConfig
-	subscriptionID     string
 	resourceSKUsClient *compute.ResourceSkusClient
 	recordSetsClient   *dns.RecordSetsClient
 	zonesClient        *dns.ZonesClient
@@ -73,21 +71,12 @@ func (c *azureClient) DeleteRecordSet(ctx context.Context, resourceGroupName str
 	return err
 }
 
-func (c *azureClient) ListZones(ctx context.Context, resourceGroupName string) (*[]dns.Zone, error) {
-	res, err := c.zonesClient.ListByResourceGroupComplete(ctx, resourceGroupName, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return res.Response().Value, nil
+func (c *azureClient) ListZones(ctx context.Context, resourceGroupName string, top *int32) (dns.ZoneListResultPage, error) {
+	return c.zonesClient.ListByResourceGroup(ctx, resourceGroupName, top)
 }
 
-func (c *azureClient) ListRecordSetsByZone(ctx context.Context, resourceGroupName string, zone string) (*[]dns.RecordSet, error) {
-	res, err := c.recordSetsClient.ListByDNSZoneComplete(ctx, resourceGroupName, zone, nil, "")
-	if err != nil {
-		return nil, err
-	}
-	return res.Response().Value, nil
+func (c *azureClient) ListRecordSetsByZone(ctx context.Context, resourceGroupName string, zone string, top *int32) (dns.RecordSetListResultPage, error) {
+	return c.recordSetsClient.ListByDNSZone(ctx, resourceGroupName, zone, top, "")
 }
 
 func (c *azureClient) GetZone(ctx context.Context, resourceGroupName string, zone string) (dns.Zone, error) {
@@ -147,8 +136,6 @@ func newClient(authJSONSource func() ([]byte, error)) (*azureClient, error) {
 	zonesClient.Authorizer = authorizer
 
 	return &azureClient{
-		config:             config,
-		subscriptionID:     subscriptionID,
 		resourceSKUsClient: &resourceSKUsClient,
 		recordSetsClient:   &recordSetsClient,
 		zonesClient:        &zonesClient,

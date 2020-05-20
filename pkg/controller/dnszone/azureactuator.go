@@ -59,7 +59,7 @@ func (a *AzureActuator) Create() error {
 	logger := a.logger.WithField("zone", a.dnsZone.Spec.Zone)
 	logger.Info("Creating managed zone")
 
-	resourceGroupName := a.dnsZone.Spec.Azure.BaseDomainResourceGroupName
+	resourceGroupName := a.dnsZone.Spec.Azure.ResourceGroupName
 
 	zone := a.dnsZone.Spec.Zone
 	managedZone, err := a.azureClient.CreateOrUpdateZone(context.TODO(), resourceGroupName, zone)
@@ -79,7 +79,7 @@ func (a *AzureActuator) Delete() error {
 		return errors.New("managedZone is unpopulated")
 	}
 
-	resourceGroupName := a.dnsZone.Spec.Azure.BaseDomainResourceGroupName
+	resourceGroupName := a.dnsZone.Spec.Azure.ResourceGroupName
 	logger := a.logger.WithField("zone", a.dnsZone.Spec.Zone).WithField("zoneName", a.managedZone.Name)
 	logger.Info("Deleting managed zone")
 	err := a.azureClient.DeleteZone(context.TODO(), resourceGroupName, *a.managedZone.Name)
@@ -114,7 +114,7 @@ func (a *AzureActuator) ModifyStatus() error {
 	}
 
 	a.dnsZone.Status.Azure = &hivev1.AzureDNSZoneStatus{
-		ZoneName: a.managedZone.Name,
+		ZoneID: a.managedZone.ID,
 	}
 
 	return nil
@@ -122,18 +122,18 @@ func (a *AzureActuator) ModifyStatus() error {
 
 // Refresh implements the Refresh call of the actuator interface
 func (a *AzureActuator) Refresh() error {
-	var zoneName string
-	if a.dnsZone.Status.Azure != nil && a.dnsZone.Status.Azure.ZoneName != nil {
-		a.logger.Debug("ZoneName is set in status, will retrieve by that name")
-		zoneName = *a.dnsZone.Status.Azure.ZoneName
+	if a.managedZone == nil {
+		return nil
 	}
 
-	resourceGroupName := a.dnsZone.Spec.Azure.BaseDomainResourceGroupName
+	zoneName := a.managedZone.Name
+
+	resourceGroupName := a.dnsZone.Spec.Azure.ResourceGroupName
 
 	// Fetch the managed zone
 	logger := a.logger.WithField("zoneName", zoneName)
 	logger.Debug("Fetching managed zone by zone name")
-	resp, err := a.azureClient.GetZone(context.TODO(), resourceGroupName, zoneName)
+	resp, err := a.azureClient.GetZone(context.TODO(), resourceGroupName, *zoneName)
 	if err != nil {
 		if resp.StatusCode == http.StatusNotFound {
 			logger.Debug("Zone not found, clearing out the cached object")
