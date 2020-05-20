@@ -151,7 +151,6 @@ type ManageDNSAWSConfig struct {
 	// AWS Route53. It will need permission to manage entries for the domain
 	// listed in the parent ManageDNSConfig object.
 	// Secret should have AWS keys named 'aws_access_key_id' and 'aws_secret_access_key'.
-	// +optional
 	CredentialsSecretRef corev1.LocalObjectReference `json:"credentialsSecretRef,omitempty"`
 
 	// Region is the AWS region to use for route53 operations.
@@ -169,7 +168,6 @@ type ManageDNSGCPConfig struct {
 	// listed in the parent ManageDNSConfig object.
 	// Secret should have a key named 'osServiceAccount.json'.
 	// The credentials must specify the project to use.
-	// +optional
 	CredentialsSecretRef corev1.LocalObjectReference `json:"credentialsSecretRef,omitempty"`
 }
 
@@ -186,14 +184,10 @@ type ManageDNSAzureConfig struct {
 	// managed domains for this cluster.
 	// listed in the parent ManageDNSConfig object.
 	// Secret should have a key named 'osServicePrincipal.json'
-	// +optional
 	CredentialsSecretRef corev1.LocalObjectReference `json:"credentialsSecretRef,omitempty"`
 
-	// +optional
-	Region string `json:"region,omitempty"`
-
-	// +optional
-	BaseDomainResourceGroupName string `json:"baseDomainResourceGroupName,omitempty"`
+	// ResourceGroupName specifies where the DNS Zone should be created
+	ResourceGroupName string `json:"resourceGroupName,omitempty"`
 }
 
 // +genclient:nonNamespaced

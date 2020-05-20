@@ -82,9 +82,6 @@ type AzureDNSZoneSpec struct {
 	// The credentials must specify the project to use.
 	CredentialsSecretRef corev1.LocalObjectReference `json:"credentialsSecretRef"`
 
-	// +optional
-	Region string `json:"region,omitempty"`
-
 	// ResourceGroupName specifies where the DNS Zone should be created
 	ResourceGroupName string `json:"resourceGroupName,omitempty"`
 }
@@ -137,9 +134,9 @@ type GCPDNSZoneStatus struct {
 
 // AzureDNSZoneStatus contains status information to specific to Azure Cloud DNS Zones
 type AzureDNSZoneStatus struct {
-	// ZoneName is the name of the zone in Azure Cloud DNS
+	// ZoneID is the ID of the zone in Azure Cloud DNS
 	// +optional
-	ZoneName *string `json:"zoneName,omitempty"`
+	ZoneID *string `json:"zoneName,omitempty"`
 }
 
 // DNSZoneCondition contains details for the current condition of a DNSZone
