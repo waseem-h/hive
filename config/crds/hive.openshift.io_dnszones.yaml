@@ -71,6 +71,28 @@ spec:
               required:
               - credentialsSecretRef
               type: object
+            azure:
+              description: Azure specifes Azure-specific cloud configuration
+              properties:
+                credentialsSecretRef:
+                  description: CredentialsSecretRef references a secret that will
+                    be used to authenticate with Azure CloudDNS. It will need permission
+                    to create and manage CloudDNS Hosted Zones. Secret should have
+                    a key named 'osServicePrincipal.json'. The credentials must specify
+                    the project to use.
+                  properties:
+                    name:
+                      description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                        TODO: Add other useful fields. apiVersion, kind, uid?'
+                      type: string
+                  type: object
+                resourceGroupName:
+                  description: ResourceGroupName specifies where the DNS Zone should
+                    be created
+                  type: string
+              required:
+              - credentialsSecretRef
+              type: object
             gcp:
               description: GCP specifies GCP-specific cloud configuration
               properties:
@@ -108,6 +130,14 @@ spec:
               properties:
                 zoneID:
                   description: ZoneID is the ID of the zone in AWS
+                  type: string
+              type: object
+            azure:
+              description: AzureDNSZoneStatus contains status information specific
+                to Azure
+              properties:
+                zoneName:
+                  description: ZoneID is the ID of the zone in Azure Cloud DNS
                   type: string
               type: object
             conditions:

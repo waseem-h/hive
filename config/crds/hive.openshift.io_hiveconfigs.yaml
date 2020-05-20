@@ -153,6 +153,27 @@ spec:
                           This defaults to us-east-1. For AWS China, use cn-northwest-1.
                         type: string
                     type: object
+                  azure:
+                    description: Azure contains Azure-specific settings for external
+                      DNS
+                    properties:
+                      credentialsSecretRef:
+                        description: CredentialsSecretRef references a secret in the
+                          TargetNamespace that will be used to authenticate with Azure
+                          DNS. It wil need permission to manage entries in each of
+                          the managed domains for this cluster. listed in the parent
+                          ManageDNSConfig object. Secret should have a key named 'osServicePrincipal.json'
+                        properties:
+                          name:
+                            description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                              TODO: Add other useful fields. apiVersion, kind, uid?'
+                            type: string
+                        type: object
+                      resourceGroupName:
+                        description: ResourceGroupName specifies where the DNS Zone
+                          should be created
+                        type: string
+                    type: object
                   domains:
                     description: Domains is the list of domains that hive will be
                       managing entries for with the provided credentials.
