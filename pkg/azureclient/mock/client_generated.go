@@ -96,10 +96,10 @@ func (mr *MockClientMockRecorder) GetZone(ctx, resourceGroupName, zone interface
 }
 
 // ListZones mocks base method
-func (m *MockClient) ListZones(ctx context.Context, resourceGroupName string, top *int32) (dns.ZoneListResultPage, error) {
+func (m *MockClient) ListZones(ctx context.Context, resourceGroupName string, top *int32) (azureclient.ZonePage, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListZones", ctx, resourceGroupName, top)
-	ret0, _ := ret[0].(dns.ZoneListResultPage)
+	ret0, _ := ret[0].(azureclient.ZonePage)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -111,10 +111,10 @@ func (mr *MockClientMockRecorder) ListZones(ctx, resourceGroupName, top interfac
 }
 
 // ListRecordSetsByZone mocks base method
-func (m *MockClient) ListRecordSetsByZone(ctx context.Context, resourceGroupName, zone string, top *int32) (dns.RecordSetListResultPage, error) {
+func (m *MockClient) ListRecordSetsByZone(ctx context.Context, resourceGroupName, zone string, top *int32) (azureclient.RecordSetPage, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListRecordSetsByZone", ctx, resourceGroupName, zone, top)
-	ret0, _ := ret[0].(dns.RecordSetListResultPage)
+	ret0, _ := ret[0].(azureclient.RecordSetPage)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -217,4 +217,134 @@ func (m *MockResourceSKUsPage) Values() []compute.ResourceSku {
 func (mr *MockResourceSKUsPageMockRecorder) Values() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Values", reflect.TypeOf((*MockResourceSKUsPage)(nil).Values))
+}
+
+// MockZonePage is a mock of ZonePage interface
+type MockZonePage struct {
+	ctrl     *gomock.Controller
+	recorder *MockZonePageMockRecorder
+}
+
+// MockZonePageMockRecorder is the mock recorder for MockZonePage
+type MockZonePageMockRecorder struct {
+	mock *MockZonePage
+}
+
+// NewMockZonePage creates a new mock instance
+func NewMockZonePage(ctrl *gomock.Controller) *MockZonePage {
+	mock := &MockZonePage{ctrl: ctrl}
+	mock.recorder = &MockZonePageMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use
+func (m *MockZonePage) EXPECT() *MockZonePageMockRecorder {
+	return m.recorder
+}
+
+// NextWithContext mocks base method
+func (m *MockZonePage) NextWithContext(ctx context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NextWithContext", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// NextWithContext indicates an expected call of NextWithContext
+func (mr *MockZonePageMockRecorder) NextWithContext(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NextWithContext", reflect.TypeOf((*MockZonePage)(nil).NextWithContext), ctx)
+}
+
+// NotDone mocks base method
+func (m *MockZonePage) NotDone() bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NotDone")
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// NotDone indicates an expected call of NotDone
+func (mr *MockZonePageMockRecorder) NotDone() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NotDone", reflect.TypeOf((*MockZonePage)(nil).NotDone))
+}
+
+// Values mocks base method
+func (m *MockZonePage) Values() []dns.Zone {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Values")
+	ret0, _ := ret[0].([]dns.Zone)
+	return ret0
+}
+
+// Values indicates an expected call of Values
+func (mr *MockZonePageMockRecorder) Values() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Values", reflect.TypeOf((*MockZonePage)(nil).Values))
+}
+
+// MockRecordSetPage is a mock of RecordSetPage interface
+type MockRecordSetPage struct {
+	ctrl     *gomock.Controller
+	recorder *MockRecordSetPageMockRecorder
+}
+
+// MockRecordSetPageMockRecorder is the mock recorder for MockRecordSetPage
+type MockRecordSetPageMockRecorder struct {
+	mock *MockRecordSetPage
+}
+
+// NewMockRecordSetPage creates a new mock instance
+func NewMockRecordSetPage(ctrl *gomock.Controller) *MockRecordSetPage {
+	mock := &MockRecordSetPage{ctrl: ctrl}
+	mock.recorder = &MockRecordSetPageMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use
+func (m *MockRecordSetPage) EXPECT() *MockRecordSetPageMockRecorder {
+	return m.recorder
+}
+
+// NextWithContext mocks base method
+func (m *MockRecordSetPage) NextWithContext(ctx context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NextWithContext", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// NextWithContext indicates an expected call of NextWithContext
+func (mr *MockRecordSetPageMockRecorder) NextWithContext(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NextWithContext", reflect.TypeOf((*MockRecordSetPage)(nil).NextWithContext), ctx)
+}
+
+// NotDone mocks base method
+func (m *MockRecordSetPage) NotDone() bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NotDone")
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// NotDone indicates an expected call of NotDone
+func (mr *MockRecordSetPageMockRecorder) NotDone() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NotDone", reflect.TypeOf((*MockRecordSetPage)(nil).NotDone))
+}
+
+// Values mocks base method
+func (m *MockRecordSetPage) Values() []dns.RecordSet {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Values")
+	ret0, _ := ret[0].([]dns.RecordSet)
+	return ret0
+}
+
+// Values indicates an expected call of Values
+func (mr *MockRecordSetPageMockRecorder) Values() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Values", reflect.TypeOf((*MockRecordSetPage)(nil).Values))
 }
