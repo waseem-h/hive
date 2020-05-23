@@ -2,6 +2,7 @@ package nameserver
 
 import (
 	"context"
+	"time"
 
 	"github.com/Azure/azure-sdk-for-go/services/dns/mgmt/2018-05-01/dns"
 	"github.com/Azure/go-autorest/autorest/to"
@@ -121,7 +122,10 @@ func (q *azureQuery) recordSet(domain string, values sets.String) dns.RecordSet 
 
 // queryNameServer queries Azure for the name servers for the specified domain in the specified managed zone.
 func (q *azureQuery) queryNameServer(azureClient azureclient.Client, rootDomain string, domain string) (sets.String, error) {
-	recordSetsPage, err := azureClient.ListRecordSetsByZone(context.TODO(), q.resourceGroupName, rootDomain, to.Int32Ptr(50))
+	ctx, cancel := context.WithTimeout(context.TODO(), 30*time.Second)
+	defer cancel()
+
+	recordSetsPage, err := azureClient.ListRecordSetsByZone(ctx, q.resourceGroupName, rootDomain, to.Int32Ptr(50))
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +143,7 @@ func (q *azureQuery) queryNameServer(azureClient azureclient.Client, rootDomain 
 				return values, nil
 			}
 		}
-		if err := recordSetsPage.Next(); err != nil {
+		if err := recordSetsPage.NextWithContext(ctx); err != nil {
 			return nil, err
 		}
 	}
@@ -149,8 +153,11 @@ func (q *azureQuery) queryNameServer(azureClient azureclient.Client, rootDomain 
 
 // queryNameServers queries Azure for the name servers in the specified managed zone.
 func (q *azureQuery) queryNameServers(azureClient azureclient.Client, rootDomain string) (map[string]sets.String, error) {
+	ctx, cancel := context.WithTimeout(context.TODO(), 30*time.Second)
+	defer cancel()
+
 	nameServers := map[string]sets.String{}
-	recordSetsPage, err := azureClient.ListRecordSetsByZone(context.TODO(), q.resourceGroupName, rootDomain, to.Int32Ptr(50))
+	recordSetsPage, err := azureClient.ListRecordSetsByZone(ctx, q.resourceGroupName, rootDomain, to.Int32Ptr(50))
 	if err != nil {
 		return nil, err
 	}
@@ -167,7 +174,7 @@ func (q *azureQuery) queryNameServers(azureClient azureclient.Client, rootDomain
 			nameServers[*recordSet.Name] = values
 		}
 
-		if err := recordSetsPage.Next(); err != nil {
+		if err := recordSetsPage.NextWithContext(ctx); err != nil {
 			return nil, err
 		}
 	}
