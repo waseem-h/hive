@@ -96,7 +96,7 @@ func (mr *MockClientMockRecorder) GetZone(ctx, resourceGroupName, zone interface
 }
 
 // ListZones mocks base method
-func (m *MockClient) ListZones(ctx context.Context, resourceGroupName string, top *int32) (azureclient.ZonePage, error) {
+func (m *MockClient) ListZones(ctx context.Context, resourceGroupName string, top int32) (azureclient.ZonePage, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListZones", ctx, resourceGroupName, top)
 	ret0, _ := ret[0].(azureclient.ZonePage)
@@ -111,7 +111,7 @@ func (mr *MockClientMockRecorder) ListZones(ctx, resourceGroupName, top interfac
 }
 
 // ListRecordSetsByZone mocks base method
-func (m *MockClient) ListRecordSetsByZone(ctx context.Context, resourceGroupName, zone string, top *int32) (azureclient.RecordSetPage, error) {
+func (m *MockClient) ListRecordSetsByZone(ctx context.Context, resourceGroupName, zone string, top int32) (azureclient.RecordSetPage, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListRecordSetsByZone", ctx, resourceGroupName, zone, top)
 	ret0, _ := ret[0].(azureclient.RecordSetPage)
