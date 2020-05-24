@@ -82,7 +82,8 @@ type AzureDNSZoneSpec struct {
 	// The credentials must specify the project to use.
 	CredentialsSecretRef corev1.LocalObjectReference `json:"credentialsSecretRef"`
 
-	// ResourceGroupName specifies where the DNS Zone should be created
+	// ResourceGroupName specifies the Azure resource group containing the DNS zones
+	// for the domains being managed.
 	ResourceGroupName string `json:"resourceGroupName,omitempty"`
 }
 
