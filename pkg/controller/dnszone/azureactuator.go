@@ -126,14 +126,14 @@ func (a *AzureActuator) Refresh() error {
 		return nil
 	}
 
-	zoneName := a.managedZone.Name
+	zoneName := a.dnsZone.Spec.Zone
 
 	resourceGroupName := a.dnsZone.Spec.Azure.ResourceGroupName
 
 	// Fetch the managed zone
 	logger := a.logger.WithField("zoneName", zoneName)
 	logger.Debug("Fetching managed zone by zone name")
-	resp, err := a.azureClient.GetZone(context.TODO(), resourceGroupName, *zoneName)
+	resp, err := a.azureClient.GetZone(context.TODO(), resourceGroupName, zoneName)
 	if err != nil {
 		if resp.StatusCode == http.StatusNotFound {
 			logger.Debug("Zone not found, clearing out the cached object")
