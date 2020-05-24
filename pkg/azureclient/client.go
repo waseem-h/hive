@@ -26,10 +26,10 @@ type Client interface {
 	CreateOrUpdateZone(ctx context.Context, resourceGroupName string, zone string) (dns.Zone, error)
 	DeleteZone(ctx context.Context, resourceGroupName string, zone string) error
 	GetZone(ctx context.Context, resourceGroupName string, zone string) (dns.Zone, error)
-	ListZones(ctx context.Context, resourceGroupName string, top *int32) (ZonePage, error)
+	ListZones(ctx context.Context, resourceGroupName string, top int32) (ZonePage, error)
 
 	// RecordSets
-	ListRecordSetsByZone(ctx context.Context, resourceGroupName string, zone string, top *int32) (RecordSetPage, error)
+	ListRecordSetsByZone(ctx context.Context, resourceGroupName string, zone string, top int32) (RecordSetPage, error)
 	CreateOrUpdateRecordSet(ctx context.Context, resourceGroupName string, zone string, recordSetName string, recordType dns.RecordType, recordSet dns.RecordSet) (dns.RecordSet, error)
 	DeleteRecordSet(ctx context.Context, resourceGroupName string, zone string, recordSetName string, recordType dns.RecordType) error
 }
@@ -86,13 +86,13 @@ func (c *azureClient) DeleteRecordSet(ctx context.Context, resourceGroupName str
 	return err
 }
 
-func (c *azureClient) ListZones(ctx context.Context, resourceGroupName string, top *int32) (ZonePage, error) {
-	page, err := c.zonesClient.ListByResourceGroup(ctx, resourceGroupName, top)
+func (c *azureClient) ListZones(ctx context.Context, resourceGroupName string, top int32) (ZonePage, error) {
+	page, err := c.zonesClient.ListByResourceGroup(ctx, resourceGroupName, &top)
 	return &page, err
 }
 
-func (c *azureClient) ListRecordSetsByZone(ctx context.Context, resourceGroupName string, zone string, top *int32) (RecordSetPage, error) {
-	page, err := c.recordSetsClient.ListByDNSZone(ctx, resourceGroupName, zone, top, "")
+func (c *azureClient) ListRecordSetsByZone(ctx context.Context, resourceGroupName string, zone string, top int32) (RecordSetPage, error) {
+	page, err := c.recordSetsClient.ListByDNSZone(ctx, resourceGroupName, zone, &top, "")
 	return &page, err
 }
 
