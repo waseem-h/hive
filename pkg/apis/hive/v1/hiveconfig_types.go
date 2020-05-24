@@ -151,7 +151,7 @@ type ManageDNSAWSConfig struct {
 	// AWS Route53. It will need permission to manage entries for the domain
 	// listed in the parent ManageDNSConfig object.
 	// Secret should have AWS keys named 'aws_access_key_id' and 'aws_secret_access_key'.
-	CredentialsSecretRef corev1.LocalObjectReference `json:"credentialsSecretRef,omitempty"`
+	CredentialsSecretRef corev1.LocalObjectReference `json:"credentialsSecretRef"`
 
 	// Region is the AWS region to use for route53 operations.
 	// This defaults to us-east-1.
@@ -168,7 +168,7 @@ type ManageDNSGCPConfig struct {
 	// listed in the parent ManageDNSConfig object.
 	// Secret should have a key named 'osServiceAccount.json'.
 	// The credentials must specify the project to use.
-	CredentialsSecretRef corev1.LocalObjectReference `json:"credentialsSecretRef,omitempty"`
+	CredentialsSecretRef corev1.LocalObjectReference `json:"credentialsSecretRef"`
 }
 
 type DeleteProtectionType string
@@ -184,10 +184,11 @@ type ManageDNSAzureConfig struct {
 	// managed domains for this cluster.
 	// listed in the parent ManageDNSConfig object.
 	// Secret should have a key named 'osServicePrincipal.json'
-	CredentialsSecretRef corev1.LocalObjectReference `json:"credentialsSecretRef,omitempty"`
+	CredentialsSecretRef corev1.LocalObjectReference `json:"credentialsSecretRef"`
 
-	// ResourceGroupName specifies where the DNS Zone should be created
-	ResourceGroupName string `json:"resourceGroupName,omitempty"`
+	// ResourceGroupName specifies the Azure resource group containing the DNS zones
+	// for the domains being managed.
+	ResourceGroupName string `json:"resourceGroupName"`
 }
 
 // +genclient:nonNamespaced

@@ -84,7 +84,7 @@ type AzureDNSZoneSpec struct {
 
 	// ResourceGroupName specifies the Azure resource group containing the DNS zones
 	// for the domains being managed.
-	ResourceGroupName string `json:"resourceGroupName,omitempty"`
+	ResourceGroupName string `json:"resourceGroupName"`
 }
 
 // DNSZoneStatus defines the observed state of DNSZone
