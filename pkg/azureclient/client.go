@@ -3,6 +3,7 @@ package azureclient
 import (
 	"context"
 	"encoding/json"
+	"io/ioutil"
 
 	"github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2018-10-01/compute"
 	"github.com/Azure/azure-sdk-for-go/services/dns/mgmt/2018-05-01/dns"
@@ -109,6 +110,12 @@ func NewClientFromSecret(secret *corev1.Secret) (Client, error) {
 	return newClient(authJSONFromSecretSource(secret))
 }
 
+// NewClientFromFile creates our client wrapper object for interacting with Azure. The Azure creds are read from the
+// specified file.
+func NewClientFromFile(filename string) (Client, error) {
+	return newClient(authJSONFromFileSource(filename))
+}
+
 func newClient(authJSONSource func() ([]byte, error)) (*azureClient, error) {
 	authJSON, err := authJSONSource()
 	if err != nil {
@@ -165,5 +172,11 @@ func authJSONFromSecretSource(secret *corev1.Secret) func() ([]byte, error) {
 			return nil, errors.New("creds secret does not contain \"" + constants.AzureCredentialsName + "\" data")
 		}
 		return authJSON, nil
+	}
+}
+
+func authJSONFromFileSource(filename string) func() ([]byte, error) {
+	return func() ([]byte, error) {
+		return ioutil.ReadFile(filename)
 	}
 }
