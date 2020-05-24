@@ -87,11 +87,12 @@ spec:
                       type: string
                   type: object
                 resourceGroupName:
-                  description: ResourceGroupName specifies where the DNS Zone should
-                    be created
+                  description: ResourceGroupName specifies the Azure resource group
+                    containing the DNS zones for the domains being managed.
                   type: string
               required:
               - credentialsSecretRef
+              - resourceGroupName
               type: object
             gcp:
               description: GCP specifies GCP-specific cloud configuration
