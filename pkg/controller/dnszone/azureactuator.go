@@ -118,12 +118,8 @@ func (a *AzureActuator) ModifyStatus() error {
 
 // Refresh implements the Refresh call of the actuator interface
 func (a *AzureActuator) Refresh() error {
-	if a.managedZone == nil {
-		return nil
-	}
 
 	zoneName := a.dnsZone.Spec.Zone
-
 	resourceGroupName := a.dnsZone.Spec.Azure.ResourceGroupName
 
 	// Fetch the managed zone
