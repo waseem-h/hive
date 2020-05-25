@@ -26,7 +26,6 @@ type Client interface {
 	CreateOrUpdateZone(ctx context.Context, resourceGroupName string, zone string) (dns.Zone, error)
 	DeleteZone(ctx context.Context, resourceGroupName string, zone string) error
 	GetZone(ctx context.Context, resourceGroupName string, zone string) (dns.Zone, error)
-	ListZones(ctx context.Context, resourceGroupName string, top int32) (ZonePage, error)
 
 	// RecordSets
 	ListRecordSetsByZone(ctx context.Context, resourceGroupName string, zone string, top int32) (RecordSetPage, error)
@@ -84,11 +83,6 @@ func (c *azureClient) DeleteZone(ctx context.Context, resourceGroupName string, 
 func (c *azureClient) DeleteRecordSet(ctx context.Context, resourceGroupName string, zone string, recordSetName string, recordType dns.RecordType) error {
 	_, err := c.recordSetsClient.Delete(ctx, resourceGroupName, zone, recordSetName, recordType, "")
 	return err
-}
-
-func (c *azureClient) ListZones(ctx context.Context, resourceGroupName string, top int32) (ZonePage, error) {
-	page, err := c.zonesClient.ListByResourceGroup(ctx, resourceGroupName, &top)
-	return &page, err
 }
 
 func (c *azureClient) ListRecordSetsByZone(ctx context.Context, resourceGroupName string, zone string, top int32) (RecordSetPage, error) {
