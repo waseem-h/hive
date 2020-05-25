@@ -113,10 +113,6 @@ func (a *AzureActuator) ModifyStatus() error {
 		return errors.New("managedZone is unpopulated")
 	}
 
-	a.dnsZone.Status.Azure = &hivev1.AzureDNSZoneStatus{
-		ZoneID: a.managedZone.ID,
-	}
-
 	return nil
 }
 

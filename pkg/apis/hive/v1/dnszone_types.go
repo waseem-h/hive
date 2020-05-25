@@ -110,10 +110,6 @@ type DNSZoneStatus struct {
 	// +optional
 	GCP *GCPDNSZoneStatus `json:"gcp,omitempty"`
 
-	// AzureDNSZoneStatus contains status information specific to Azure
-	// +optional
-	Azure *AzureDNSZoneStatus `json:"azure,omitempty"`
-
 	// Conditions includes more detailed status for the DNSZone
 	// +optional
 	Conditions []DNSZoneCondition `json:"conditions,omitempty"`
@@ -131,13 +127,6 @@ type GCPDNSZoneStatus struct {
 	// ZoneName is the name of the zone in GCP Cloud DNS
 	// +optional
 	ZoneName *string `json:"zoneName,omitempty"`
-}
-
-// AzureDNSZoneStatus contains status information to specific to Azure Cloud DNS Zones
-type AzureDNSZoneStatus struct {
-	// ZoneID is the ID of the zone in Azure Cloud DNS
-	// +optional
-	ZoneID *string `json:"zoneName,omitempty"`
 }
 
 // DNSZoneCondition contains details for the current condition of a DNSZone
