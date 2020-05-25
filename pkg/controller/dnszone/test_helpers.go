@@ -13,11 +13,13 @@ import (
 
 	hivev1 "github.com/openshift/hive/pkg/apis/hive/v1"
 	awsclient "github.com/openshift/hive/pkg/awsclient"
+	azureclient "github.com/openshift/hive/pkg/azureclient"
 	gcpclient "github.com/openshift/hive/pkg/gcpclient"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/golang/mock/gomock"
 	mockaws "github.com/openshift/hive/pkg/awsclient/mock"
+	mockazure "github.com/openshift/hive/pkg/azureclient/mock"
 	mockgcp "github.com/openshift/hive/pkg/gcpclient/mock"
 )
 
@@ -49,6 +51,9 @@ var (
 						},
 					},
 				},
+				Azure: &hivev1.AzureDNSZoneSpec{
+					ResourceGroupName: "default",
+				},
 			},
 			Status: hivev1.DNSZoneStatus{
 				AWS: &hivev1.AWSDNSZoneStatus{
@@ -79,6 +84,18 @@ var (
 			},
 			Data: map[string][]byte{
 				"osServiceAccount.json": []byte("notrealsecrettoken"),
+			},
+		}
+	}
+
+	validAzureSecret = func() *corev1.Secret {
+		return &corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "somesecret",
+				Namespace: "ns",
+			},
+			Data: map[string][]byte{
+				"osServicePrincipal.json": []byte("notrealsecrettoken"),
 			},
 		}
 	}
@@ -127,10 +144,11 @@ var (
 )
 
 type mocks struct {
-	fakeKubeClient client.Client
-	mockCtrl       *gomock.Controller
-	mockAWSClient  *mockaws.MockClient
-	mockGCPClient  *mockgcp.MockClient
+	fakeKubeClient  client.Client
+	mockCtrl        *gomock.Controller
+	mockAWSClient   *mockaws.MockClient
+	mockGCPClient   *mockgcp.MockClient
+	mockAzureClient *mockazure.MockClient
 }
 
 // setupDefaultMocks is an easy way to setup all of the default mocks
@@ -142,6 +160,7 @@ func setupDefaultMocks(t *testing.T) *mocks {
 
 	mocks.mockAWSClient = mockaws.NewMockClient(mocks.mockCtrl)
 	mocks.mockGCPClient = mockgcp.NewMockClient(mocks.mockCtrl)
+	mocks.mockAzureClient = mockazure.NewMockClient(mocks.mockCtrl)
 
 	return mocks
 }
@@ -155,6 +174,12 @@ func fakeAWSClientBuilder(mockAWSClient *mockaws.MockClient) awsClientBuilderTyp
 func fakeGCPClientBuilder(mockGCPClient *mockgcp.MockClient) gcpClientBuilderType {
 	return func(secret *corev1.Secret) (gcpclient.Client, error) {
 		return mockGCPClient, nil
+	}
+}
+
+func fakeAzureClientBuilder(mockAzureClient *mockazure.MockClient) azureClientBuilderType {
+	return func(secret *corev1.Secret) (azureclient.Client, error) {
+		return mockAzureClient, nil
 	}
 }
 
