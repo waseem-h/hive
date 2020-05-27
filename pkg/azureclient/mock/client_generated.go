@@ -96,18 +96,18 @@ func (mr *MockClientMockRecorder) GetZone(ctx, resourceGroupName, zone interface
 }
 
 // ListRecordSetsByZone mocks base method
-func (m *MockClient) ListRecordSetsByZone(ctx context.Context, resourceGroupName, zone string, top int32) (azureclient.RecordSetPage, error) {
+func (m *MockClient) ListRecordSetsByZone(ctx context.Context, resourceGroupName, zone string, top int32, suffix string) (azureclient.RecordSetPage, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListRecordSetsByZone", ctx, resourceGroupName, zone, top)
+	ret := m.ctrl.Call(m, "ListRecordSetsByZone", ctx, resourceGroupName, zone, top, suffix)
 	ret0, _ := ret[0].(azureclient.RecordSetPage)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ListRecordSetsByZone indicates an expected call of ListRecordSetsByZone
-func (mr *MockClientMockRecorder) ListRecordSetsByZone(ctx, resourceGroupName, zone, top interface{}) *gomock.Call {
+func (mr *MockClientMockRecorder) ListRecordSetsByZone(ctx, resourceGroupName, zone, top, suffix interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRecordSetsByZone", reflect.TypeOf((*MockClient)(nil).ListRecordSetsByZone), ctx, resourceGroupName, zone, top)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRecordSetsByZone", reflect.TypeOf((*MockClient)(nil).ListRecordSetsByZone), ctx, resourceGroupName, zone, top, suffix)
 }
 
 // CreateOrUpdateRecordSet mocks base method

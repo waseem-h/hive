@@ -125,7 +125,7 @@ func (q *azureQuery) queryNameServer(azureClient azureclient.Client, rootDomain 
 	ctx, cancel := context.WithTimeout(context.TODO(), 30*time.Second)
 	defer cancel()
 
-	recordSetsPage, err := azureClient.ListRecordSetsByZone(ctx, q.resourceGroupName, rootDomain, 5)
+	recordSetsPage, err := azureClient.ListRecordSetsByZone(ctx, q.resourceGroupName, rootDomain, 5, domain)
 	if err != nil {
 		return nil, err
 	}
@@ -157,7 +157,7 @@ func (q *azureQuery) queryNameServers(azureClient azureclient.Client, rootDomain
 	defer cancel()
 
 	nameServers := map[string]sets.String{}
-	recordSetsPage, err := azureClient.ListRecordSetsByZone(ctx, q.resourceGroupName, rootDomain, 50)
+	recordSetsPage, err := azureClient.ListRecordSetsByZone(ctx, q.resourceGroupName, rootDomain, 50, "")
 	if err != nil {
 		return nil, err
 	}

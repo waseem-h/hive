@@ -28,7 +28,7 @@ type Client interface {
 	GetZone(ctx context.Context, resourceGroupName string, zone string) (dns.Zone, error)
 
 	// RecordSets
-	ListRecordSetsByZone(ctx context.Context, resourceGroupName string, zone string, top int32) (RecordSetPage, error)
+	ListRecordSetsByZone(ctx context.Context, resourceGroupName string, zone string, top int32, suffix string) (RecordSetPage, error)
 	CreateOrUpdateRecordSet(ctx context.Context, resourceGroupName string, zone string, recordSetName string, recordType dns.RecordType, recordSet dns.RecordSet) (dns.RecordSet, error)
 	DeleteRecordSet(ctx context.Context, resourceGroupName string, zone string, recordSetName string, recordType dns.RecordType) error
 }
@@ -85,8 +85,8 @@ func (c *azureClient) DeleteRecordSet(ctx context.Context, resourceGroupName str
 	return err
 }
 
-func (c *azureClient) ListRecordSetsByZone(ctx context.Context, resourceGroupName string, zone string, top int32) (RecordSetPage, error) {
-	page, err := c.recordSetsClient.ListByDNSZone(ctx, resourceGroupName, zone, &top, "")
+func (c *azureClient) ListRecordSetsByZone(ctx context.Context, resourceGroupName string, zone string, top int32, suffix string) (RecordSetPage, error) {
+	page, err := c.recordSetsClient.ListByDNSZone(ctx, resourceGroupName, zone, &top, suffix)
 	return &page, err
 }
 
