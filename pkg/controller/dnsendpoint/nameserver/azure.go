@@ -105,7 +105,7 @@ func (q *azureQuery) deleteNameServers(azureClient azureclient.Client, rootDomai
 	ctx, cancel := contextWithTimeout(context.TODO())
 	defer cancel()
 
-	return azureClient.DeleteRecordSet(ctx, q.resourceGroupName, rootDomain, domain, dns.NS)
+	return azureClient.DeleteRecordSet(ctx, q.resourceGroupName, rootDomain, q.getRelativeDomain(rootDomain, domain), dns.NS)
 }
 
 // createNameServers creates the name servers for the specified domain in the specified managed zone.
