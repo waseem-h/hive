@@ -28,7 +28,7 @@ type Client interface {
 	GetZone(ctx context.Context, resourceGroupName string, zone string) (dns.Zone, error)
 
 	// RecordSets
-	ListRecordSetsByZone(ctx context.Context, resourceGroupName string, zone string, top int32, suffix string) (RecordSetPage, error)
+	ListRecordSetsByZone(ctx context.Context, resourceGroupName string, zone string, suffix string) (RecordSetPage, error)
 	CreateOrUpdateRecordSet(ctx context.Context, resourceGroupName string, zone string, recordSetName string, recordType dns.RecordType, recordSet dns.RecordSet) (dns.RecordSet, error)
 	DeleteRecordSet(ctx context.Context, resourceGroupName string, zone string, recordSetName string, recordType dns.RecordType) error
 }
@@ -38,13 +38,6 @@ type ResourceSKUsPage interface {
 	NextWithContext(ctx context.Context) error
 	NotDone() bool
 	Values() []compute.ResourceSku
-}
-
-// ZonePage is a page of results from listing zones.
-type ZonePage interface {
-	NextWithContext(ctx context.Context) error
-	NotDone() bool
-	Values() []dns.Zone
 }
 
 // RecordSetPage is a page of results from listing record sets.
@@ -68,6 +61,9 @@ func (c *azureClient) ListResourceSKUs(ctx context.Context) (ResourceSKUsPage, e
 func (c *azureClient) CreateOrUpdateZone(ctx context.Context, resourceGroupName string, zone string) (dns.Zone, error) {
 	return c.zonesClient.CreateOrUpdate(ctx, resourceGroupName, zone, dns.Zone{
 		Location: to.StringPtr("global"),
+		ZoneProperties: &dns.ZoneProperties{
+			ZoneType: dns.Public,
+		},
 	}, "", "")
 }
 
@@ -85,8 +81,8 @@ func (c *azureClient) DeleteRecordSet(ctx context.Context, resourceGroupName str
 	return err
 }
 
-func (c *azureClient) ListRecordSetsByZone(ctx context.Context, resourceGroupName string, zone string, top int32, suffix string) (RecordSetPage, error) {
-	page, err := c.recordSetsClient.ListByDNSZone(ctx, resourceGroupName, zone, &top, suffix)
+func (c *azureClient) ListRecordSetsByZone(ctx context.Context, resourceGroupName string, zone string, suffix string) (RecordSetPage, error) {
+	page, err := c.recordSetsClient.ListByDNSZone(ctx, resourceGroupName, zone, nil, suffix)
 	return &page, err
 }
 
