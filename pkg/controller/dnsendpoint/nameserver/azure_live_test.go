@@ -15,18 +15,29 @@ import (
 	"k8s.io/apimachinery/pkg/util/sets"
 )
 
+// This test will perform a test using real queries with Azure.
+// By default, this test will be skipped.
+// To enable the test, set the TEST_LIVE_GCP environment variable to the value
+// of the root domain and TEST_LIVE_AZURE_RESOURCE_GROUP to the value of the resource group
+// that you would like to use for the tests. Note that there must be a public DNS zone
+// for that root domain in the default Azure account.
 func TestLiveAzure(t *testing.T) {
 	rootDomain := os.Getenv("TEST_LIVE_AZURE")
+	resourceGroupName := os.Getenv("TEST_LIVE_AZURE_RESOURCE_GROUP")
 	if rootDomain == "" {
 		t.SkipNow()
 	}
 	rand.Seed(time.Now().UnixNano())
-	suite.Run(t, &LiveAzureTestSuite{rootDomain: rootDomain})
+	suite.Run(t, &LiveAzureTestSuite{
+		resourceGroupName: resourceGroupName,
+		rootDomain:        rootDomain,
+	})
 }
 
 type LiveAzureTestSuite struct {
 	suite.Suite
-	rootDomain string
+	resourceGroupName string
+	rootDomain        string
 }
 
 func (s *LiveAzureTestSuite) TestGetForNonExistentZone() {
@@ -162,6 +173,6 @@ func (s *LiveAzureTestSuite) getCUT() *azureQuery {
 		getAzureClient: func() (azureclient.Client, error) {
 			return azureclient.NewClientFromFile(credsFile)
 		},
-		resourceGroupName: "Default",
+		resourceGroupName: s.resourceGroupName,
 	}
 }
