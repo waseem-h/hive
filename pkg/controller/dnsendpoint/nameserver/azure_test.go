@@ -101,7 +101,7 @@ func TestAzureGet(t *testing.T) {
 
 func mockListRecordSets(mockCtrl *gomock.Controller, client *mock.MockClient, recordSetPage *RecordSetPage) {
 	page := mock.NewMockRecordSetPage(mockCtrl)
-	client.EXPECT().ListRecordSetsByZone(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(page, nil)
+	client.EXPECT().ListRecordSetsByZone(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(page, nil)
 	page.EXPECT().NotDone().Return(false).Times(1).After(page.EXPECT().NotDone().Return(true).Times(1))
 
 	page.EXPECT().NextWithContext(gomock.Any()).Return(nil)
