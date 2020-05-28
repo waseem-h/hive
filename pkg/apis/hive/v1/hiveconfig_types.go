@@ -181,8 +181,7 @@ const (
 type ManageDNSAzureConfig struct {
 	// CredentialsSecretRef references a secret in the TargetNamespace that will be used to authenticate with
 	// Azure DNS. It wil need permission to manage entries in each of the
-	// managed domains for this cluster.
-	// listed in the parent ManageDNSConfig object.
+	// managed domains listed in the parent ManageDNSConfig object.
 	// Secret should have a key named 'osServicePrincipal.json'
 	CredentialsSecretRef corev1.LocalObjectReference `json:"credentialsSecretRef"`
 
