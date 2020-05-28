@@ -27,7 +27,7 @@ func TestNewAzureActuator(t *testing.T) {
 	}{
 		{
 			name:    "Successfully create new zone",
-			dnsZone: validDNSZone(),
+			dnsZone: validAzureDNSZone(),
 			secret:  validAzureSecret(),
 		},
 	}
