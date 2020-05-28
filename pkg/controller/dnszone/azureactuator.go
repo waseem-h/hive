@@ -6,10 +6,12 @@ import (
 	"net/http"
 
 	"github.com/Azure/azure-sdk-for-go/services/dns/mgmt/2018-05-01/dns"
+	log "github.com/sirupsen/logrus"
+
+	corev1 "k8s.io/api/core/v1"
+
 	hivev1 "github.com/openshift/hive/pkg/apis/hive/v1"
 	"github.com/openshift/hive/pkg/azureclient"
-	log "github.com/sirupsen/logrus"
-	corev1 "k8s.io/api/core/v1"
 )
 
 // AzureActuator attempts to make the current state reflect the given desired state.
@@ -84,7 +86,7 @@ func (a *AzureActuator) Delete() error {
 	logger.Info("Deleting managed zone")
 	err := a.azureClient.DeleteZone(context.TODO(), resourceGroupName, *a.managedZone.Name)
 	if err != nil {
-		log.WithError(err).Log(log.ErrorLevel, "Cannot delete managed zone")
+		log.WithError(err).Error(log.ErrorLevel, "Cannot delete managed zone")
 	}
 
 	return err
