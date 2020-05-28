@@ -88,7 +88,7 @@ spec:
                   type: object
                 resourceGroupName:
                   description: ResourceGroupName specifies the Azure resource group
-                    containing the DNS zones for the domains being managed.
+                    in which the Hosted Zone should be created.
                   type: string
               required:
               - credentialsSecretRef
@@ -132,6 +132,10 @@ spec:
                 zoneID:
                   description: ZoneID is the ID of the zone in AWS
                   type: string
+              type: object
+            azure:
+              description: AzureDNSZoneStatus contains status information specific
+                to Azure
               type: object
             conditions:
               description: Conditions includes more detailed status for the DNSZone
