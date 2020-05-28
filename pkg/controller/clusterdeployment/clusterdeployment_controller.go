@@ -1359,7 +1359,11 @@ func (r *ReconcileClusterDeployment) setDNSDelayMetric(cd *hivev1.ClusterDeploym
 }
 
 func (r *ReconcileClusterDeployment) ensureManagedDNSZone(cd *hivev1.ClusterDeployment, cdLog log.FieldLogger) (*hivev1.DNSZone, error) {
-	if cd.Spec.Platform.AWS == nil && cd.Spec.Platform.GCP == nil && cd.Spec.Platform.Azure == nil {
+	switch p := cd.Spec.Platform; {
+	case p.AWS != nil:
+	case p.GCP != nil:
+	case p.Azure != nil:
+	default:
 		cdLog.Error("cluster deployment platform does not support managed DNS")
 		if err := r.setDNSNotReadyCondition(cd, false, "Managed DNS is not supported for platform", cdLog); err != nil {
 			cdLog.WithError(err).Log(controllerutils.LogLevel(err), "could not update DNSNotReadyCondition")
