@@ -2,6 +2,7 @@ package nameserver
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/Azure/azure-sdk-for-go/services/dns/mgmt/2018-05-01/dns"
@@ -15,6 +16,14 @@ import (
 	"github.com/openshift/hive/pkg/azureclient"
 	controllerutils "github.com/openshift/hive/pkg/controller/utils"
 )
+
+const (
+	defaultCallTimeout = 30 * time.Second
+)
+
+func contextWithTimeout(ctx context.Context) (context.Context, context.CancelFunc) {
+	return context.WithTimeout(ctx, defaultCallTimeout)
+}
 
 // NewAzureQuery creates a new name server query for Azure.
 func NewAzureQuery(c client.Client, credsSecretName string, resourceGroupName string) Query {
@@ -93,12 +102,18 @@ func (q *azureQuery) Delete(rootDomain string, domain string, values sets.String
 
 // deleteNameServers deletes the name servers for the specified domain in the specified managed zone.
 func (q *azureQuery) deleteNameServers(azureClient azureclient.Client, rootDomain string, domain string, values sets.String) error {
-	return azureClient.DeleteRecordSet(context.TODO(), q.resourceGroupName, rootDomain, domain, dns.NS)
+	ctx, cancel := contextWithTimeout(context.TODO())
+	defer cancel()
+
+	return azureClient.DeleteRecordSet(ctx, q.resourceGroupName, rootDomain, domain, dns.NS)
 }
 
 // createNameServers creates the name servers for the specified domain in the specified managed zone.
 func (q *azureQuery) createNameServers(azureClient azureclient.Client, rootDomain string, domain string, values sets.String) error {
-	_, err := azureClient.CreateOrUpdateRecordSet(context.TODO(), q.resourceGroupName, rootDomain, domain, dns.NS, q.recordSet(domain, values))
+	ctx, cancel := contextWithTimeout(context.TODO())
+	defer cancel()
+
+	_, err := azureClient.CreateOrUpdateRecordSet(ctx, q.resourceGroupName, rootDomain, domain, dns.NS, q.recordSet(q.getRelativeDomain(rootDomain, domain), values))
 
 	return errors.Wrap(err, "something went wrong when creating name servers")
 }
@@ -122,10 +137,10 @@ func (q *azureQuery) recordSet(domain string, values sets.String) dns.RecordSet 
 
 // queryNameServer queries Azure for the name servers for the specified domain in the specified managed zone.
 func (q *azureQuery) queryNameServer(azureClient azureclient.Client, rootDomain string, domain string) (sets.String, error) {
-	ctx, cancel := context.WithTimeout(context.TODO(), 30*time.Second)
+	ctx, cancel := contextWithTimeout(context.TODO())
 	defer cancel()
 
-	recordSetsPage, err := azureClient.ListRecordSetsByZone(ctx, q.resourceGroupName, rootDomain, 5, domain)
+	recordSetsPage, err := azureClient.ListRecordSetsByZone(ctx, q.resourceGroupName, rootDomain, domain)
 	if err != nil {
 		return nil, err
 	}
@@ -153,11 +168,11 @@ func (q *azureQuery) queryNameServer(azureClient azureclient.Client, rootDomain 
 
 // queryNameServers queries Azure for the name servers in the specified managed zone.
 func (q *azureQuery) queryNameServers(azureClient azureclient.Client, rootDomain string) (map[string]sets.String, error) {
-	ctx, cancel := context.WithTimeout(context.TODO(), 30*time.Second)
+	ctx, cancel := contextWithTimeout(context.TODO())
 	defer cancel()
 
 	nameServers := map[string]sets.String{}
-	recordSetsPage, err := azureClient.ListRecordSetsByZone(ctx, q.resourceGroupName, rootDomain, 50, "")
+	recordSetsPage, err := azureClient.ListRecordSetsByZone(ctx, q.resourceGroupName, rootDomain, "")
 	if err != nil {
 		return nil, err
 	}
@@ -180,4 +195,8 @@ func (q *azureQuery) queryNameServers(azureClient azureclient.Client, rootDomain
 	}
 
 	return nameServers, nil
+}
+
+func (q *azureQuery) getRelativeDomain(rootDomain string, domain string) string {
+	return strings.TrimRight(strings.TrimSuffix(domain, rootDomain), ".")
 }
