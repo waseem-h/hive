@@ -351,7 +351,7 @@ func TestReconcileDNSProviderForAzure(t *testing.T) {
 	}{
 		{
 			name:    "DNSZone without finalizer",
-			dnsZone: validDNSZoneWithoutFinalizer(),
+			dnsZone: validAzureDNSZoneWithoutFinalizer(),
 			setupAzureMock: func(expect *azuremock.MockClientMockRecorder) {
 				mockAzureZoneExists(expect)
 			},
@@ -361,7 +361,7 @@ func TestReconcileDNSProviderForAzure(t *testing.T) {
 		},
 		{
 			name:    "Create Managed Zone, No ZoneName Set",
-			dnsZone: validDNSZoneWithoutID(),
+			dnsZone: validAzureDNSZoneWithoutID(),
 			setupAzureMock: func(expect *azuremock.MockClientMockRecorder) {
 				mockAzureZoneDoesntExist(expect)
 				mockCreateAzureZone(expect)
@@ -372,7 +372,7 @@ func TestReconcileDNSProviderForAzure(t *testing.T) {
 		},
 		{
 			name:    "Adopt existing zone, No ZoneName Set",
-			dnsZone: validDNSZoneWithoutID(),
+			dnsZone: validAzureDNSZoneWithoutID(),
 			setupAzureMock: func(expect *azuremock.MockClientMockRecorder) {
 				mockAzureZoneExists(expect)
 			},
@@ -382,7 +382,7 @@ func TestReconcileDNSProviderForAzure(t *testing.T) {
 		},
 		{
 			name:    "Delete managed zone",
-			dnsZone: validDNSZoneBeingDeleted(),
+			dnsZone: validAzureDNSZoneBeingDeleted(),
 			setupAzureMock: func(expect *azuremock.MockClientMockRecorder) {
 				mockAzureZoneExists(expect)
 				mockDeleteAzureZone(expect)
@@ -393,7 +393,7 @@ func TestReconcileDNSProviderForAzure(t *testing.T) {
 		},
 		{
 			name:    "Delete non-existent managed zone",
-			dnsZone: validDNSZoneBeingDeleted(),
+			dnsZone: validAzureDNSZoneBeingDeleted(),
 			setupAzureMock: func(expect *azuremock.MockClientMockRecorder) {
 				mockAzureZoneDoesntExist(expect)
 			},
@@ -403,7 +403,7 @@ func TestReconcileDNSProviderForAzure(t *testing.T) {
 		},
 		{
 			name:            "Existing zone, link to parent, reachable SOA",
-			dnsZone:         validDNSZoneWithLinkToParent(),
+			dnsZone:         validAzureDNSZoneWithLinkToParent(),
 			soaLookupResult: true,
 			setupAzureMock: func(expect *azuremock.MockClientMockRecorder) {
 				mockAzureZoneExists(expect)
