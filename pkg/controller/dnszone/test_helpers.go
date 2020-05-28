@@ -51,14 +51,32 @@ var (
 						},
 					},
 				},
-				Azure: &hivev1.AzureDNSZoneSpec{
-					ResourceGroupName: "default",
-				},
 			},
 			Status: hivev1.DNSZoneStatus{
 				AWS: &hivev1.AWSDNSZoneStatus{
 					ZoneID: aws.String("1234"),
 				},
+			},
+		}
+	}
+
+	validAzureDNSZone = func() *hivev1.DNSZone {
+		return &hivev1.DNSZone{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:       "dnszoneobject",
+				Namespace:  "ns",
+				Generation: 6,
+				Finalizers: []string{hivev1.FinalizerDNSZone},
+				UID:        types.UID("abcdef"),
+			},
+			Spec: hivev1.DNSZoneSpec{
+				Zone: "blah.example.com",
+				Azure: &hivev1.AzureDNSZoneSpec{
+					ResourceGroupName: "default",
+				},
+			},
+			Status: hivev1.DNSZoneStatus{
+				Azure: &hivev1.AzureDNSZoneStatus{},
 			},
 		}
 	}
@@ -106,8 +124,20 @@ var (
 		return zone
 	}
 
+	validAzureDNSZoneWithLinkToParent = func() *hivev1.DNSZone {
+		zone := validAzureDNSZone()
+		zone.Spec.LinkToParentDomain = true
+		return zone
+	}
+
 	validDNSZoneWithoutFinalizer = func() *hivev1.DNSZone {
 		zone := validDNSZone()
+		zone.Finalizers = []string{}
+		return zone
+	}
+
+	validAzureDNSZoneWithoutFinalizer = func() *hivev1.DNSZone {
+		zone := validAzureDNSZone()
 		zone.Finalizers = []string{}
 		return zone
 	}
@@ -115,6 +145,12 @@ var (
 	validDNSZoneWithoutID = func() *hivev1.DNSZone {
 		zone := validDNSZone()
 		zone.Status.AWS = nil
+		return zone
+	}
+
+	validAzureDNSZoneWithoutID = func() *hivev1.DNSZone {
+		zone := validAzureDNSZone()
+		zone.Status.Azure = nil
 		return zone
 	}
 
@@ -136,6 +172,15 @@ var (
 	validDNSZoneBeingDeleted = func() *hivev1.DNSZone {
 		// Take a copy of the default validDNSZone object
 		zone := validDNSZone()
+
+		// And make the 1 change needed to signal the object is being deleted.
+		zone.DeletionTimestamp = kubeTimeNow
+		return zone
+	}
+
+	validAzureDNSZoneBeingDeleted = func() *hivev1.DNSZone {
+		// Take a copy of the default validAzureDNSZone object
+		zone := validAzureDNSZone()
 
 		// And make the 1 change needed to signal the object is being deleted.
 		zone.DeletionTimestamp = kubeTimeNow
