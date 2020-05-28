@@ -62,6 +62,8 @@ type Options struct {
 	CredsFile string
 	homeDir   string
 
+	AzureResourceGroup string
+
 	dynamicClient dynamic.Interface
 	hiveClient    *hiveclient.Clientset
 }
@@ -96,8 +98,9 @@ func NewEnableManageDNSCommand() *cobra.Command {
 	}
 
 	flags := cmd.Flags()
-	flags.StringVar(&opt.Cloud, "cloud", cloudAWS, "Cloud provider: aws(default)|gcp)")
+	flags.StringVar(&opt.Cloud, "cloud", cloudAWS, "Cloud provider: aws(default)|gcp|azure)")
 	flags.StringVar(&opt.CredsFile, "creds-file", "", "Cloud credentials file (defaults vary depending on cloud)")
+	flags.StringVar(&opt.AzureResourceGroup, "azure-resource-group", "os4-common", "Azure Resource Group (Only applicable if --cloud azure)")
 	return cmd
 }
 
@@ -165,6 +168,7 @@ func (o *Options) Run(args []string) error {
 		}
 		dnsConf.Azure = &hivev1.ManageDNSAzureConfig{
 			CredentialsSecretRef: corev1.LocalObjectReference{Name: credsSecret.Name},
+			ResourceGroupName:    o.AzureResourceGroup,
 		}
 	default:
 		log.WithField("cloud", o.Cloud).Fatal("unsupported cloud")
