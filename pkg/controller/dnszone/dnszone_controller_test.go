@@ -360,8 +360,8 @@ func TestReconcileDNSProviderForAzure(t *testing.T) {
 			},
 		},
 		{
-			name:    "Create Managed Zone, No ZoneName Set",
-			dnsZone: validAzureDNSZoneWithoutID(),
+			name:    "Create Managed Zone",
+			dnsZone: validAzureDNSZone(),
 			setupAzureMock: func(expect *azuremock.MockClientMockRecorder) {
 				mockAzureZoneDoesntExist(expect)
 				mockCreateAzureZone(expect)
@@ -371,8 +371,8 @@ func TestReconcileDNSProviderForAzure(t *testing.T) {
 			},
 		},
 		{
-			name:    "Adopt existing zone, No ZoneName Set",
-			dnsZone: validAzureDNSZoneWithoutID(),
+			name:    "Adopt existing zone",
+			dnsZone: validAzureDNSZone(),
 			setupAzureMock: func(expect *azuremock.MockClientMockRecorder) {
 				mockAzureZoneExists(expect)
 			},

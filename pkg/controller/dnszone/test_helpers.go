@@ -148,12 +148,6 @@ var (
 		return zone
 	}
 
-	validAzureDNSZoneWithoutID = func() *hivev1.DNSZone {
-		zone := validAzureDNSZone()
-		zone.Status.Azure = nil
-		return zone
-	}
-
 	validDNSZoneWithAdditionalTags = func() *hivev1.DNSZone {
 		zone := validDNSZone()
 		zone.Spec.AWS.AdditionalTags = append(zone.Spec.AWS.AdditionalTags, []hivev1.AWSResourceTag{
