@@ -140,17 +140,19 @@ func (q *azureQuery) queryNameServer(azureClient azureclient.Client, rootDomain 
 	ctx, cancel := contextWithTimeout(context.TODO())
 	defer cancel()
 
-	recordSetsPage, err := azureClient.ListRecordSetsByZone(ctx, q.resourceGroupName, rootDomain, q.getRelativeDomain(rootDomain, domain))
+	relativeDomain := q.getRelativeDomain(rootDomain, domain)
+
+	recordSetsPage, err := azureClient.ListRecordSetsByZone(ctx, q.resourceGroupName, rootDomain, relativeDomain)
 	if err != nil {
 		return nil, err
 	}
 
 	for recordSetsPage.NotDone() {
 		for _, recordSet := range recordSetsPage.Values() {
-			if *recordSet.Type != string(dns.NS) {
+			if recordSet.RecordSetProperties.NsRecords != nil {
 				continue
 			}
-			if *recordSet.Name == domain {
+			if *recordSet.Name == relativeDomain {
 				values := sets.NewString()
 				for _, v := range *recordSet.NsRecords {
 					values.Insert(*v.Nsdname)
@@ -180,14 +182,18 @@ func (q *azureQuery) queryNameServers(azureClient azureclient.Client, rootDomain
 
 	for recordSetsPage.NotDone() {
 		for _, recordSet := range recordSetsPage.Values() {
-			if *recordSet.Type != string(dns.NS) {
+			if recordSet.RecordSetProperties.NsRecords == nil {
 				continue
 			}
 			values := sets.NewString()
 			for _, v := range *recordSet.NsRecords {
 				values.Insert(*v.Nsdname)
 			}
-			nameServers[*recordSet.Name] = values
+			if *recordSet.Name == "@" {
+				nameServers[rootDomain] = values
+			} else {
+				nameServers[q.getFQDN(*recordSet.Name, rootDomain)] = values
+			}
 		}
 
 		if err := recordSetsPage.NextWithContext(ctx); err != nil {
@@ -200,4 +206,8 @@ func (q *azureQuery) queryNameServers(azureClient azureclient.Client, rootDomain
 
 func (q *azureQuery) getRelativeDomain(rootDomain string, domain string) string {
 	return controllerutils.Undotted(strings.TrimSuffix(domain, rootDomain))
+}
+
+func (q *azureQuery) getFQDN(relativeDomain string, rootDomain string) string {
+	return relativeDomain + "." + rootDomain
 }
