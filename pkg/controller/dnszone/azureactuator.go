@@ -86,7 +86,7 @@ func (a *AzureActuator) Delete() error {
 	logger.Info("Deleting managed zone")
 	err := a.azureClient.DeleteZone(context.TODO(), resourceGroupName, *a.managedZone.Name)
 	if err != nil {
-		log.WithError(err).Error(log.ErrorLevel, "Cannot delete managed zone")
+		log.WithError(err).Error("Cannot delete managed zone")
 	}
 
 	return err
