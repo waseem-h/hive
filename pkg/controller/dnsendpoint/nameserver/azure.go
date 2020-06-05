@@ -163,7 +163,8 @@ func (q *azureQuery) queryNameServer(azureClient azureclient.Client, rootDomain 
 		}
 	}
 
-	return nil, errors.New("Cannot find name servers for domain")
+	// No records found
+	return nil, nil
 }
 
 // queryNameServers queries Azure for the name servers in the specified managed zone.
