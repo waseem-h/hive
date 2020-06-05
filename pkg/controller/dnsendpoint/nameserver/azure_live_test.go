@@ -9,10 +9,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/openshift/hive/pkg/azureclient"
-	"github.com/openshift/hive/pkg/constants"
 	"github.com/stretchr/testify/suite"
 	"k8s.io/apimachinery/pkg/util/sets"
+
+	"github.com/openshift/hive/pkg/azureclient"
+	"github.com/openshift/hive/pkg/constants"
 )
 
 // This test will perform a test using real queries with Azure.
@@ -41,8 +42,8 @@ type LiveAzureTestSuite struct {
 }
 
 func (s *LiveAzureTestSuite) TestGetForNonExistentZone() {
-	nameServers, err := s.getCUT().Get("non-existent.zone.live-gcp.test.com")
-	s.NoError(err, "expected no error")
+	nameServers, err := s.getCUT().Get("non-existent.zone.live-azure.test.com")
+	s.Error(err, "expected error")
 	s.Empty(nameServers, "expected no name servers")
 }
 
@@ -133,6 +134,7 @@ func (s *LiveAzureTestSuite) testCreateAndDelete(tc *testCreateAndDeleteCase) {
 			s.NoError(err, "unexpected error deleting NS")
 		}()
 	}
+
 	nameServers, err := cut.Get(s.rootDomain)
 	s.NoError(err, "unexpected error querying domain")
 	s.NotEmpty(nameServers, "expected some name servers")
